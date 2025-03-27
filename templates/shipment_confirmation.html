@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Shipment Confirmation PDF</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .invoice-box {
+      max-width: 800px;
+      margin: auto;
+      padding: 30px;
+      border: 1px solid #eee;
+      font-size: 16px;
+      line-height: 24px;
+      font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+      color: #555;
+    }
+    .invoice-box table {
+      width: 100%;
+      text-align: left;
+    }
+    .invoice-box table td {
+      padding: 5px;
+      vertical-align: top;
+    }
+    .invoice-box table tr.heading td {
+      background: #eee;
+      border-bottom: 1px solid #ddd;
+      font-weight: bold;
+    }
+    .invoice-box table tr.item td {
+      border-bottom: 1px solid #eee;
+    }
+    .invoice-box table tr.total td:nth-child(5) {
+      border-top: 2px solid #eee;
+      font-weight: bold;
+    }
+    .company-profile {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .company-profile img {
+      max-height: 80px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="invoice-box">
+    <!-- Company Profile Section -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <img src="{{ url_for('static', filename='images/company_logo_left.png') }}" alt="Company Logo Left" style="max-height:80px;">
+      <div class="text-center mx-3">
+        <h4 class="mb-1">MWEA RICE GROWERS LTD</h4>
+        <small>Growers & Processors of Pure Pishori Rice</small>
+        <p class="mt-2 mb-0">Head Office, Mwea Branch, Igogo Road, Near Buruburu Junction</p>
+        <p class="mb-0">Tel: 0723 253 140 | 0731 091 526 | 0727 562 152</p>
+      </div>
+      <!--<img src="{{ url_for('static', filename='images/company_logo_right.png') }}" alt="Company Logo Right" style="max-height:80px;"> -->
+    </div>
+    <hr>
+    
+    <h2 class="text-center mb-4">Shipment Confirmation</h2>
+    <table>
+      <tr>
+        <td><strong>Shipment ID:</strong> {{ shipment.id }}</td>
+        <td style="text-align:right;"><strong>Date Confirmed:</strong> {{ shipment.confirmed_at }}</td>
+      </tr>
+      <tr>
+        <td><strong>Invoice No:</strong> {{ shipment.invoice_no }}</td>
+        <td style="text-align:right;"><strong>Route:</strong> {{ shipment.route }}</td>
+      </tr>
+      <tr>
+        <td colspan="2"><strong>Vehicle Reg No:</strong> {{ shipment.vehicle_registration_no }}</td>
+      </tr>
+      <tr>
+        <td colspan="2"><strong>Customer Name:</strong> {{ shipment.customer_name }}</td>
+      </tr>
+      <tr>
+        <td colspan="2"><strong>Destination Address:</strong> {{ shipment.destination_address }}</td>
+      </tr>
+    </table>
+    <br>
+    <table>
+      <tr class="heading">
+        <td>Rice Type</td>
+        <td>Quantity</td>
+        <td>Weight (kg)</td>
+        <td>Price per kg</td>
+        <td>Total Cost</td>
+      </tr>
+      {% for item in shipment_items %}
+      <tr class="item">
+        <td>{{ item.rice_type }}</td>
+        <td>{{ item.quantity }}</td>
+        <td>{{ item.weight }}</td>
+        <td>{{ item.price_per_kg }}</td>
+        <td>{{ item.total_cost }}</td>
+      </tr>
+      {% endfor %}
+      <tr class="total">
+        <td colspan="4" style="text-align:right;">Grand Total:</td>
+        <td>{{ grand_total }}</td>
+      </tr>
+    </table>
+    <br>
+    <h4>Payment Details</h4>
+    <table>
+      <tr>
+        <td><strong>Payment Method:</strong> {{ shipment.payment_method }}</td>
+      </tr>
+      {% if shipment.payment_method == 'mpesa' %}
+      <tr>
+        <td><strong>Mpesa Transaction ID:</strong> {{ shipment.mpesa_transaction }}</td>
+      </tr>
+      {% elif shipment.payment_method == 'bank_deposit' %}
+      <tr>
+        <td><strong>Bank Deposit Reference:</strong> {{ shipment.deposit_reference }}</td>
+      </tr>
+      {% elif shipment.payment_method == 'cheque' %}
+      <tr>
+        <td><strong>Cheque Number:</strong> {{ shipment.cheque_number }}</td>
+      </tr>
+      {% endif %}
+    </table>
+  </div>
+</body>
+</html>

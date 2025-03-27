@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Confirm Shipment Receipt & Payment</title>
+  <!-- Bootstrap CSS CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .container { max-width: 600px; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2 class="mb-4">Confirm Shipment Receipt & Payment</h2>
+    
+    <!-- Shipment Details Section -->
+    <div id="shipmentDetails" class="mb-4">
+      <h4>Shipment Details</h4>
+      <p><strong>Shipment ID:</strong> {{ shipment.id }}</p>
+      <p><strong>Inventory ID:</strong> {{ shipment.inventory_id }}</p>
+      <p><strong>Customer Name:</strong> {{ shipment.customer_name }}</p>
+      <p><strong>Destination Address:</strong> {{ shipment.destination_address }}</p>
+      <p><strong>Invoice No:</strong> {{ shipment.invoice_no }}</p>
+      <p><strong>Status:</strong> {{ shipment.shipment_status }}</p>
+    </div>
+    
+    <!-- Payment & Confirmation Form -->
+    <form action="{{ url_for('confirm_shipment', shipment_id=shipment.id) }}" method="POST" enctype="multipart/form-data">
+      <div class="mb-3">
+        <label for="payment_method" class="form-label">Payment Method</label>
+        <select class="form-select" id="payment_method" name="payment_method" required>
+          <option value="" disabled selected>Select Payment Method</option>
+          <option value="bank_deposit">Bank Deposit</option>
+          <option value="cheque">Cheque</option>
+          <option value="mpesa">Mpesa</option>
+        </select>
+      </div>
+      <!-- Container for payment-specific fields -->
+      <div id="paymentDetails"></div>
+      
+      <button type="submit" class="btn btn-primary">Confirm Receipt & Submit Payment</button>
+    </form>
+  </div>
+  
+  <!-- Bootstrap Bundle JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <script>
+    // Listen for changes to the payment method selector
+    document.getElementById('payment_method').addEventListener('change', function() {
+      var method = this.value;
+      var container = document.getElementById('paymentDetails');
+      container.innerHTML = ""; // Clear previous fields
+      
+      if (method === "bank_deposit") {
+        container.innerHTML = `
+          <div class="mb-3">
+            <label for="deposit_reference" class="form-label">Bank Deposit Reference</label>
+            <input type="text" class="form-control" id="deposit_reference" name="deposit_reference" required>
+          </div>
+        `;
+      } else if (method === "cheque") {
+        container.innerHTML = `
+          <div class="mb-3">
+            <label for="cheque_number" class="form-label">Cheque Number</label>
+            <input type="text" class="form-control" id="cheque_number" name="cheque_number" required>
+          </div>
+        `;
+      } else if (method === "mpesa") {
+        container.innerHTML = `
+          <div class="mb-3">
+            <label for="mpesa_phone" class="form-label">Mpesa Phone Number</label>
+            <input type="text" class="form-control" id="mpesa_phone" name="mpesa_phone" placeholder="2547XXXXXXXX" required>
+          </div>
+          <div class="mb-3">
+            <label for="mpesa_transaction" class="form-label">Mpesa Transaction ID</label>
+            <input type="text" class="form-control" id="mpesa_transaction" name="mpesa_transaction" required>
+          </div>
+          <div class="mb-3">
+            <label for="mpesa_qr" class="form-label">Mpesa Payment QR Code (optional)</label>
+            <input type="file" class="form-control" id="mpesa_qr" name="mpesa_qr">
+          </div>
+        `;
+      }
+    });
+  </script>
+</body>
+</html>

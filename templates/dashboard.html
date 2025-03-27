@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha384-4M4JuiMCwlj+NjJfN2L0H8Zld6KoYzzMfqOdmqpxoqWcHHtfvYCydbBjWvHEdT2M" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <meta charset="UTF-8">
+  <title>Fleet Tracking Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Leaflet CSS (using version 1.9.4) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
+        integrity="sha384-4M4JuiMCwlj+NjJfN2L0H8Zld6KoYzzMfqOdmqpxoqWcHHtfvYCydbBjWvHEdT2M" 
+        crossorigin="anonymous">
+  
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+    #map {
+      height: 500px;
+      width: 100%;
+      border: 2px solid #dee2e6;
+      border-radius: 5px;
+    }
+    .navbar-brand {
+      font-weight: bold;
+      font-size: 1.5rem;
+    }
+    .card {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">Fleet Dashboard</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" 
+              data-bs-target="#navbarNav" aria-controls="navbarNav" 
+              aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link active" href="#">Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link" href="/inventory/create">Create Inventory</a></li>
+          <li class="nav-item"><a class="nav-link" href="/shipments">Shipments</a></li>
+          <li class="nav-item"><a class="nav-link" href="/create_shipment">Create Shipment</a></li>
+          <li class="nav-item"><a class="nav-link" href="/fleet_track">Fleet Tracking</a></li>
+          <li class="nav-item"><a class="nav-link" href="/add_vehicle">Add a Vehicle</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Dashboard Content -->
+  <div class="container">
+    <div class="card shadow">
+      <div class="card-header bg-primary text-white">
+        <h3 class="mb-0">Live Fleet Tracking</h3>
+      </div>
+      <div class="card-body">
+        <div id="map"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
+          integrity="sha384-GKaMEkYEoVXtIRW/dcKSBEW3w8ckuD9LMA96DxQHjw9blmuONI4VnH35LErUj5wE" 
+          crossorigin="anonymous"></script>
+  <!-- Bootstrap Bundle JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <!-- Fleet Tracking Script -->
+  <script>
+    // Initialize the Leaflet Map
+    var map = L.map('map').setView([-0.6843583, 37.3551667], 15);
+
+    // Add OpenStreetMap Tile Layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Object to store markers by vehicle ID
+    var markers = {};
+
+    // Function to fetch fleet positions and update markers on the map
+    function loadFleetPositions() {
+      fetch('/fleet_positions')
+        .then(response => response.json())
+        .then(data => {
+          console.log("Fetched fleet positions:", data);
+          
+          // Remove existing markers
+          for (var id in markers) {
+            map.removeLayer(markers[id]);
+          }
+          markers = {}; // Reset marker storage
+
+          // Add new markers for each vehicle
+          data.forEach(vehicle => {
+            var lat = parseFloat(vehicle.latitude);
+            var lon = parseFloat(vehicle.longitude);
+            var vehicleId = vehicle.vehicle_id;
+
+            if (!isNaN(lat) && !isNaN(lon)) {
+              var marker = L.marker([lat, lon])
+                .addTo(map)
+                .bindPopup(`<b>Vehicle ID:</b> ${vehicleId}<br><b>Lat:</b> ${lat}<br><b>Lon:</b> ${lon}`);
+              markers[vehicleId] = marker;
+            } else {
+              console.error("Invalid GPS data:", vehicle);
+            }
+          });
+        })
+        .catch(error => console.error('Error loading fleet positions:', error));
+    }
+
+    // Load fleet positions every 10 seconds
+    loadFleetPositions();
+    setInterval(loadFleetPositions, 10000);
+  </script>
+</body>
+</html>
