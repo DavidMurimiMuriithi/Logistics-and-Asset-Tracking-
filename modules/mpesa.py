@@ -5,10 +5,10 @@ import base64
 from datetime import datetime
 
 # Configuration / Credentials - Replace with your actual values
-CONSUMER_KEY = "wUPlANtGBDqUPfJGQgILaGpIkpVGS0Lb1rm4BAxFJ5DdmLKs"
-CONSUMER_SECRET = "T8jWHm8rwHrlsBJmik3BtRC5M1tVSeaaggiRJfi6TjloEDm8VodttC5i5Fe5IXyl"
+CONSUMER_KEY = ""
+CONSUMER_SECRET = ""
 BUSINESS_SHORT_CODE = "174379"  # e.g., "174379"
-LIPA_NA_MPESA_ONLINE_PASSKEY = "bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919"       # e.g., "YourPassKeyHere"
+LIPA_NA_MPESA_ONLINE_PASSKEY = ""       # e.g., "YourPassKeyHere"
 
 # API Endpoints (using sandbox URLs; change for production)
 TOKEN_URL = "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials"
